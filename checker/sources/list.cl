@@ -2,7 +2,6 @@ class END_LIST {};
 
 class List inherits IO {
 
-    (* TODO: store data *)
     head : Object;
     tail : List;
 
@@ -21,66 +20,60 @@ class List inherits IO {
         }
     };
 
-    -- Tell if this list is empty or not
+    -- Tells if current list node is the last 
     isEndList() : Int {
         case head of
             empty_list : END_LIST => 1;
             default : Object => 0;
         esac
     };
-
+    
+    -- Append a single element to end of list
     add(o : Object):SELF_TYPE {
-        let temp : List <- self,
+        let temp : List <- tail,
+            curr_head : Object <- head,
             loop_flag : Bool <- true
         in
             {
-                if (temp.isEndList() = 1) then
-                    out_string("reached end of list\n")
-                else
-                    out_string("still more of this list\n")
-                fi;
-
+                case head of 
+                -- Particular case where list is empty
+                case_empty_list : END_LIST => {
+                    head <- o;
+                    tail <- new List.init();
+                };
                 -- Navigate to end of list
-                while (loop_flag) loop
-                {
-                    case temp.getHead() of 
-                    i : Int => {tail <- tail.getTail();};
-                    o : Object => {loop_flag <- false;};
-                    esac;
-                }
-                pool;
-                
-
-                -- Replace END_LIST last element with actual element
-                temp.setHead(o);
-                temp.setTail(new List.init()); 
-                out_string("ADDED ");
-                case temp.getHead() of 
-                i : Int => out_int(i);
-                o : Object => out_string("teapa");
+                default : Object => {
+                    while (loop_flag) loop
+                    {
+                        case temp.getHead() of 
+                        i : Object => temp <- temp.getTail();
+                        o : END_LIST => loop_flag <- false;
+                        esac;
+                    }
+                    pool;
+                    
+                    -- Replace END_LIST last element with actual element
+                    temp.setHead(o);
+                    temp.setTail(new List.init()); 
+                };
                 esac;
-                out_string("\n");
+                
                 self;
             }
     };
 
+    -- Output a string showing the list's contents
     toString():String {
         let temp : List <- self,
             output : String <- ""
         in
             {
-                -- if (temp.isEndList() = 1) then
-                -- out_string("reached end of list\n")
-                -- else
-                -- out_string("still more of this list\n")
-                -- fi;
-
-                out_string("[");
-
+                output.concat("[");
                 while (temp.isEndList() = 0) loop
                 {
                     case temp.getHead() of 
                     i : Int => out_int(i);
+                    s : String => out_string("'".concat(s).concat("'"));
                     o : Object => out_string("teapa");
                     esac;
                     
@@ -99,7 +92,20 @@ class List inherits IO {
     };
 
     merge(other : List):SELF_TYPE {
-        self (* TODO *)
+        let temp : List <- self
+        in
+        {
+            -- Iterate to last element before end of list
+            while (temp.getTail().isEndList() = 0) loop
+            {
+                temp <- temp.getTail();
+            }
+            pool;
+
+            temp.setTail(other);
+            self;
+        }
+
     };
 
     filterBy():SELF_TYPE {
@@ -108,34 +114,5 @@ class List inherits IO {
 
     sortBy():SELF_TYPE {
         self (* TODO *)
-    };
-};
-
-class Main inherits IO{
-    lists : List <- new List.init();
-    looping : Bool <- true;
-    somestr : String;
-
-    main():Object {
-        {
-            out_string("add 1\n");
-            lists.add(1);
-            out_string("add 2\n");
-            lists.add(2);
-            out_string("add 3\n");
-            lists.add(3);
-            out_string(lists.toString());
-            out_string("add 4\n");
-            lists.add(4);
-            out_string(lists.toString());
-            out_string("added all");
-            -- lists.add(5);
-            while looping loop {
-                out_string(lists.toString());
-                -- input 
-                somestr <- in_string();
-                -- out_string("Hi ".concat(somestr).concat("\n"));
-            } pool;
-        }
     };
 };

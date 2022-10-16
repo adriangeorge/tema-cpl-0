@@ -16,7 +16,13 @@ class Product {
     getprice():Int{ price * 119 / 100 };
 
     toString():String {
-        "TODO: implement me"
+        -- Hint: what are the default methods of Object?
+        let output: String <- "" in
+        {
+            output <- output.concat(self.type_name());
+            output <- output.concat("(").concat(name).concat(")");
+            output;
+        }
     };
 };
 
@@ -54,7 +60,12 @@ class Rank {
 
     toString():String {
         -- Hint: what are the default methods of Object?
-        "TODO: implement me"
+        let output: String <- "" in
+        {
+            output <- output.concat(self.type_name());
+            output <- output.concat("(").concat(name).concat(")");
+            output;
+        }
     };
 };
 
