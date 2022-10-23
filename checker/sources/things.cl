@@ -20,7 +20,7 @@ class Product {
         let output: String <- "" in
         {
             output <- output.concat(self.type_name());
-            output <- output.concat("(").concat(name).concat(")");
+            output <- output.concat("(").concat(name).concat(";").concat(model).concat(")");
             output;
         }
     };
@@ -54,8 +54,11 @@ class Router inherits Product {};
 class Rank {
     name : String;
 
-    init(n : String):String {
-        name <- n
+    init(n : String): SELF_TYPE {
+        {
+            name <- n;
+            self;
+        }
     };
 
     toString():String {

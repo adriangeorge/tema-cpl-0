@@ -64,35 +64,186 @@ class List inherits IO {
 
     -- Output a string showing the list's contents
     toString():String {
-        let temp : List <- self,
-            output : String <- ""
+        let temp            : List      <- self,
+            output          : String    <- "",
+            index           : Int       <- 0,
+            isListOfLists   : Bool      <- false
         in
             {
-                output.concat("[");
+                case temp.getHead() of
+                    l : List => isListOfLists <- true;
+                    o : Object => {isListOfLists <- false; output <- output.concat("[");};
+                esac;
+
                 while (temp.isEndList() = 0) loop
                 {
                     case temp.getHead() of 
-                    i : Int => out_int(i);
-                    s : String => out_string("'".concat(s).concat("'"));
-                    o : Object => out_string("teapa");
+                        -- Custom datatypes use their toString() method
+                        p:Product => output <- output.concat(p.toString());
+                        r:Rank => output <- output.concat(r.toString());
+
+                        -- Manually define outputs for basic data types
+                        s:String    => output <- output.concat("String(".concat(s).concat(")"));
+                        i:Int       => output <- output.concat("Int(".concat((new A2I).i2a(i)).concat(")"));
+                        io:IO       => output <- output.concat("IO()");
+                        l : List    => output <- output.concat((new A2I).i2a(index <- index + 1).concat(": ").concat(l.toString()));
+                        b:Bool      => if b then output <- output.concat("Bool(true)") else output<- output.concat("Bool(false)") fi;
+                        o:Object    => output<- output.concat("Error:No Type Match");
                     esac;
                     
-                    if(temp.getTail().isEndList() = 1) then 
-                        out_string("")
+                    if (temp.getTail().isEndList() = 1) then 
+                        output <- output.concat("")
                     else
-                        out_string(", ")
+                        {
+                            case temp.getHead() of
+                                l : List => output <- output.concat("\n");
+                                o : Object => output <- output.concat(", ");
+                            esac;
+                        }
                     fi;
 
                     temp <- temp.getTail();
                 }
                 pool;
-                out_string("]\n");
+
+                if isListOfLists then output else output<- output.concat("]") fi;
                 output;
             }
     };
 
+    ------------------- GETTERS FOR VARIOUS TYPES ------------------
+    getStr(index : Int) : String {
+        let temp    : List  <- self,
+            counter : Int   <- 0
+        in
+        {
+            -- Iterate to specified index
+            while not (counter = index) loop
+            {
+                counter <- counter + 1;
+                temp <- temp.getTail();
+            }
+            pool;
+            
+            case temp.getHead() of
+                i:Int => (new A2I).i2a(i);
+                s:String => s;
+                o:Object => "ERR";
+            esac;
+        }
+    };
+
+    getBool(index : Int) : Bool {
+        let temp    : List  <- self,
+            counter : Int   <- 0
+        in
+        {
+            -- Iterate to specified index
+            while not (counter = index) loop
+            {
+                counter <- counter + 1;
+                temp <- temp.getTail();
+            }
+            pool;   
+
+            case temp.getHead() of
+                b:String => if b = "true" then true else false fi;
+                o:Object => {out_string("obj"); false;};
+            esac;
+        }
+    };
+
+    getInt(index : Int) : Int {
+        let temp    : List  <- self,
+            counter : Int   <- 0
+        in
+        {
+            -- Iterate to specified index
+            while not (counter = index) loop
+            {
+                counter <- counter + 1;
+                temp <- temp.getTail();
+            }
+            pool;
+            
+            case temp.getHead() of
+                i:Int => i;
+                s:String => (new A2I).a2i(s);
+                o:Object => 999;
+            esac;
+        }
+    };
+
+    getObj(index : Int) : Object {
+        let temp    : List  <- self,
+            counter : Int   <- 0
+        in
+        {
+            -- Iterate to specified index
+            while not (counter = index) loop
+            {
+                counter <- counter + 1;
+                temp <- temp.getTail();
+            }
+            pool;
+            
+            temp.getHead();
+        }
+    };
+
+    getList(index : Int) : List {
+        let temp : List     <- self,
+            counter : Int   <- 0
+        in
+        {
+            -- Iterate to specified index
+            while not (counter = index) loop
+            {
+                counter <- counter + 1;
+                temp <- temp.getTail();
+            }
+            pool;
+            
+            case temp.getHead() of
+                l:List => l;
+                o:Object => new List;
+            esac;
+        }
+    };
+
+    ----------------- END GETTERS FOR VARIOUS TYPES -----------------
+    
+    remove(index : Int) : List {
+        let temp : List     <- self,
+            counter : Int   <- 0
+        in
+        {
+            -- Iterate to specified index
+            if not (index < 0) then 
+            {
+                while not (counter = index) loop
+                {
+                    counter <- counter + 1;
+                    temp <- temp.getTail();
+                }
+                pool;
+                
+                case temp.getHead() of
+                    l:List => l;
+                    o:Object => new List;
+                esac;
+            }
+            else 
+            {
+                (new List).init();
+            }
+            fi;
+            
+        }
+    };
+
     merge(other : List):SELF_TYPE {
-        let temp : List <- self
+        let temp : List     <- self
         in
         {
             -- Iterate to last element before end of list
@@ -108,11 +259,18 @@ class List inherits IO {
 
     };
 
-    filterBy():SELF_TYPE {
-        self (* TODO *)
+    filterBy(): List {
+        let
+            newList : List  <- (new List).init(),
+            counter : Int   <- 0
+        in
+            {
+                out_string("filter\n");
+            }
+        
     };
 
-    sortBy():SELF_TYPE {
+    sortBy(): List {
         self (* TODO *)
     };
 };
