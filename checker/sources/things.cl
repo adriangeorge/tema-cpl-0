@@ -53,7 +53,7 @@ class Router inherits Product {};
  ****************************)
 class Rank {
     name : String;
-
+    priority() : Int {0};
     init(n : String): SELF_TYPE {
         {
             name <- n;
@@ -72,10 +72,18 @@ class Rank {
     };
 };
 
-class Private inherits Rank {};
+class Private inherits Rank {
+    priority() : Int {0};
+};
 
-class Corporal inherits Private {};
+class Corporal inherits Private {
+    priority() : Int {1};
+};
 
-class Sergent inherits Corporal {};
+class Sergent inherits Corporal {
+    priority() : Int {2};
+};
 
-class Officer inherits Sergent {};
+class Officer inherits Sergent {
+    priority() : Int {3};
+};
